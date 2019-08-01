@@ -5,7 +5,11 @@ set -e
 function remove_scrapped_jars {
   local patched=$(find $JBOSS_HOME -name \*.jar.patched -printf "%h\n")
   if [ -n "$patched" ]; then
+	# Disabling patched jars by appending .patched is enabled; remove the .patched jars
     echo "$patched" | sort | uniq | xargs rm -rv
+  else
+	# Patched jars are not being disabled by appending .patched; instead find all modules in .overlays dirs and remove the base module
+    find $JBOSS_HOME -type f -name "module.xml" | grep "/\.overlays/" | sed 's/\.overlays\/[^/]*\///gp' | sed 's/\/module.xml//gp' | xargs rm -rf 
   fi
 }
 
